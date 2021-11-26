@@ -1,0 +1,214 @@
+{ 
+    "_id" : ObjectId("61835cad7275569d8110b1c0"), 
+    "name" : "Leo Sultanov", 
+    "email" : "leo@admin.com", 
+    "username" : "Leo Sultanov", 
+    "password" : "sha1$15dd65ed$1$18e6387bbb799d8379ccf46a26ebae4c89eb8938", 
+    "role" : "admin", 
+    "avatarUrl" : "1636634080103-engineering-card.jpg", 
+    "address" : "House", 
+    "country" : "Anguilla", 
+    "state" : "Russia", 
+    "city" : "Krasnodarskiy kray", 
+    "status" : "active", 
+    "__v" : NumberInt(0), 
+    "phoneNumber" : "1231251", 
+    "zipCode" : "353909", 
+    "coverage" : NumberInt(50), 
+    "gender" : NumberInt(0), 
+    "note" : "SuperAdmin", 
+    "online" : true, 
+    "fixedLocation" : "", 
+    "originPassword" : "123456", 
+    "img" : "1636634080103-engineering-card.jpg", 
+    "balance" : NumberInt(50), 
+    "punishment" : NumberInt(0), 
+    "token" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImJhbGFuY2VDdXJyZW5jeSI6IlVTRCIsImNyZWRpdCI6MCwibGlrZSI6MCwiZGlzbGlrZSI6MCwiYmlvIjoiSGkgaWFtIHVzaW5nIFYgQ2hhdCBBcHAiLCJsb2NhdGlvbiI6IjAsMCIsImNyZWF0ZWQiOiIyMDIxLTExLTE3VDIwOjI0OjQ0LjY0M1oiLCJ1c2VfY3VycmVudF9sb2NhdGlvbl9hc19wZXJtYW5lbnQiOmZhbHNlLCJkaXNwbGF5X3Bvc2l0aW9uX3dpdGhfcmFuZG9tX29mZnNldCI6ZmFsc2UsImFsbF9uZXdfbWVzc2FnZV9hbGVydCI6ZmFsc2UsInB1YmxpY19jaGF0X3Jvb21fbWVfYWxlcnQiOmZhbHNlLCJjaGFuZ2Vfa2lsb21ldGVyc190b19taWxlcyI6ZmFsc2UsInZvaWNlX2FsZXJ0IjpmYWxzZSwidmlicmF0aW9uX2FsZXJ0IjpmYWxzZSwiZG9fbm90X2Rpc3R1cmIiOmZhbHNlLCJfaWQiOiI2MTgzNWNhZDcyNzU1NjlkODExMGIxYzAiLCJuYW1lIjoiTGVvIFN1bHRhbm92IiwiZW1haWwiOiJsZW9AYWRtaW4uY29tIiwidXNlcm5hbWUiOiJMZW8gU3VsdGFub3YiLCJwYXNzd29yZCI6InNoYTEkMTVkZDY1ZWQkMSQxOGU2Mzg3YmJiNzk5ZDgzNzljY2Y0NmEyNmViYWU0Yzg5ZWI4OTM4Iiwicm9sZSI6ImFkbWluIiwiYXZhdGFyVXJsIjoiMTYzNjYzNDA4MDEwMy1lbmdpbmVlcmluZy1jYXJkLmpwZyIsImFkZHJlc3MiOiJIb3VzZSIsImNvdW50cnkiOiJBbmd1aWxsYSIsInN0YXRlIjoiUnVzc2lhIiwiY2l0eSI6IktyYXNub2RhcnNraXkga3JheSIsInN0YXR1cyI6ImFjdGl2ZSIsIl9fdiI6MCwicGhvbmVOdW1iZXIiOiIxMjMxMjUxIiwiemlwQ29kZSI6IjM1MzkwOSIsImNvdmVyYWdlIjo1MCwiZ2VuZGVyIjowLCJub3RlIjoiU3VwZXJBZG1pbiIsIm9ubGluZSI6ZmFsc2UsImZpeGVkTG9jYXRpb24iOiIiLCJvcmlnaW5QYXNzd29yZCI6IjEyMzQ1NiIsImltZyI6IjE2MzY2MzQwODAxMDMtZW5naW5lZXJpbmctY2FyZC5qcGciLCJiYWxhbmNlIjo1MCwicHVuaXNobWVudCI6MCwidG9rZW4iOiIifSwiaWF0IjoxNjM3MTgzNjA1LCJleHAiOjE2Njg3MTk2MDV9.2GmZpqM4zxzBUoV7lZnTuGLXepo4FyyiVpFm4R4zfzM", 
+    "location" : {
+        "type" : "Point", 
+        "coordinates" : [
+            NumberInt(0), 
+            NumberInt(0)
+        ]
+    }
+}
+{ 
+    "_id" : ObjectId("6195d76a3c6e9e93b00f3c3f"), 
+    "name" : "sultanovilvircr", 
+    "email" : "sultanovilvircr@mail.ru", 
+    "token" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjYxOTVkNzZhM2M2ZTllOTNiMDBmM2MzZiIsIm5hbWUiOiJzdWx0YW5vdmlsdmlyY3IiLCJlbWFpbCI6InN1bHRhbm92aWx2aXJjckBtYWlsLnJ1IiwidG9rZW4iOiIiLCJwYXNzd29yZCI6InNoYTEkZTZiMjFiOTkkMSQ2N2NiMzE0MDczYjY3NDc5NTNkNzc3NTY1MmM5YmNjZjdiOGVjMDM2Iiwib3JpZ2luUGFzc3dvcmQiOiIxMjM0NSIsImdlbmRlciI6MCwiYmFsYW5jZSI6MCwiYmFsYW5jZUN1cnJlbmN5IjoiVVNEIiwicHVuaXNobWVudCI6MCwiY3JlZGl0IjowLCJsaWtlIjowLCJkaXNsaWtlIjowLCJpbWciOiJkZWZhdWx0LXVzZXItcHJvZmlsZS1pbWFnZS5wbmciLCJiaW8iOiJIaSBpYW0gdXNpbmcgViBDaGF0IEFwcCIsInJvbGUiOiJ1c2VyIiwiYXZhdGFyVXJsIjoiZGVmYXVsdC11c2VyLXByb2ZpbGUtaW1hZ2UucG5nIiwibG9jYXRpb24iOiIwLDAiLCJjb3VudHJ5IjoiIiwic3RhdHVzIjoiYWN0aXZlIiwib25saW5lIjpmYWxzZSwiY3JlYXRlZCI6IjIwMjEtMTEtMThUMDQ6MzI6NDIuNjA1WiIsInVzZV9jdXJyZW50X2xvY2F0aW9uX2FzX3Blcm1hbmVudCI6ZmFsc2UsImRpc3BsYXlfcG9zaXRpb25fd2l0aF9yYW5kb21fb2Zmc2V0IjpmYWxzZSwiYWxsX25ld19tZXNzYWdlX2FsZXJ0IjpmYWxzZSwicHVibGljX2NoYXRfcm9vbV9tZV9hbGVydCI6ZmFsc2UsImNoYW5nZV9raWxvbWV0ZXJzX3RvX21pbGVzIjpmYWxzZSwidm9pY2VfYWxlcnQiOmZhbHNlLCJ2aWJyYXRpb25fYWxlcnQiOmZhbHNlLCJkb19ub3RfZGlzdHVyYiI6ZmFsc2UsIl9fdiI6MH0sImlhdCI6MTYzNzIwOTk4MCwiZXhwIjoxNjY4NzQ1OTgwfQ.yJCox6o0g8M_cZf5DCc2Vwj9uI0KrIWvLqnibdzJESQ", 
+    "password" : "sha1$20108f06$1$ecdb0da3bb108a987eec7c46de761d00533b5371", 
+    "originPassword" : "1234567", 
+    "gender" : NumberInt(0), 
+    "balance" : NumberInt(0), 
+    "balanceCurrency" : "USD", 
+    "punishment" : NumberInt(0), 
+    "credit" : NumberInt(0), 
+    "like" : NumberInt(1), 
+    "dislike" : NumberInt(0), 
+    "img" : "1637645900672-images.jpg", 
+    "bio" : "Hi iam using V Chat App", 
+    "role" : "user", 
+    "avatarUrl" : "1637645900672-images.jpg", 
+    "country" : "", 
+    "status" : "active", 
+    "online" : true, 
+    "created" : ISODate("2021-11-18T04:32:42.605+0000"), 
+    "use_current_location_as_permanent" : false, 
+    "display_position_with_random_offset" : false, 
+    "all_new_message_alert" : false, 
+    "public_chat_room_me_alert" : false, 
+    "change_kilometers_to_miles" : false, 
+    "voice_alert" : false, 
+    "vibration_alert" : false, 
+    "do_not_disturb" : false, 
+    "__v" : NumberInt(0), 
+    "location" : {
+        "type" : "Point", 
+        "coordinates" : [
+            125.24215, 
+            34.123512
+        ]
+    }, 
+    "dislikeUsers" : [
+
+    ], 
+    "likeUsers" : [
+        "61963e71328a302da76c3af5"
+    ], 
+    "address" : "", 
+    "fixedLocation" : "", 
+    "note" : "", 
+    "phoneNumber" : ""
+}
+{ 
+    "_id" : ObjectId("61963e71328a302da76c3af5"), 
+    "name" : "Ilvirsultanovtchub21", 
+    "email" : "ilvirsultanovtchub21@gmail.com", 
+    "token" : "", 
+    "password" : "sha1$c0e08a5a$1$6510aab7ff620035610a44ceb14e0cdddbfeef09", 
+    "originPassword" : "12345", 
+    "gender" : NumberInt(0), 
+    "balance" : NumberInt(0), 
+    "balanceCurrency" : "USD", 
+    "punishment" : NumberInt(0), 
+    "credit" : NumberInt(0), 
+    "like" : NumberInt(0), 
+    "dislike" : NumberInt(0), 
+    "img" : "default-user-profile-image.png", 
+    "bio" : "Hi iam using V Chat App", 
+    "role" : "user", 
+    "avatarUrl" : "default-user-profile-image.png", 
+    "location" : {
+        "type" : "Point", 
+        "coordinates" : [
+            -12.456, 
+            32.4221
+        ]
+    }, 
+    "country" : "", 
+    "status" : "active", 
+    "online" : false, 
+    "created" : ISODate("2021-11-18T11:52:17.973+0000"), 
+    "use_current_location_as_permanent" : false, 
+    "display_position_with_random_offset" : false, 
+    "all_new_message_alert" : false, 
+    "public_chat_room_me_alert" : false, 
+    "change_kilometers_to_miles" : false, 
+    "voice_alert" : false, 
+    "vibration_alert" : false, 
+    "do_not_disturb" : false, 
+    "__v" : NumberInt(0)
+}
+{ 
+    "_id" : ObjectId("61964ea89606814bb7a442e8"), 
+    "name" : "sultanov", 
+    "email" : "sultanov@gmail.com", 
+    "token" : "", 
+    "password" : "sha1$fee3b4ef$1$f035a895c6e683bcc6144a51cef6ad437437ca88", 
+    "originPassword" : "12345", 
+    "gender" : NumberInt(0), 
+    "balance" : NumberInt(0), 
+    "balanceCurrency" : "USD", 
+    "punishment" : NumberInt(0), 
+    "credit" : NumberInt(0), 
+    "like" : NumberInt(0), 
+    "dislike" : NumberInt(0), 
+    "img" : "1637645870264-Sales-Marketing.jpg", 
+    "bio" : "Hi iam using V Chat App", 
+    "role" : "user", 
+    "avatarUrl" : "1637645870264-Sales-Marketing.jpg", 
+    "location" : {
+        "type" : "Point", 
+        "coordinates" : [
+            NumberInt(0), 
+            NumberInt(0)
+        ]
+    }, 
+    "country" : "", 
+    "status" : "active", 
+    "online" : false, 
+    "created" : ISODate("2021-11-18T13:01:28.192+0000"), 
+    "use_current_location_as_permanent" : false, 
+    "display_position_with_random_offset" : false, 
+    "all_new_message_alert" : false, 
+    "public_chat_room_me_alert" : false, 
+    "change_kilometers_to_miles" : false, 
+    "voice_alert" : false, 
+    "vibration_alert" : false, 
+    "do_not_disturb" : false, 
+    "__v" : NumberInt(0), 
+    "address" : "", 
+    "fixedLocation" : "", 
+    "note" : "", 
+    "phoneNumber" : ""
+}
+{ 
+    "_id" : ObjectId("619f244eb1c7efc9f5caad0e"), 
+    "name" : "user1", 
+    "email" : "user1@gmail.com", 
+    "token" : "", 
+    "password" : "sha1$375903a9$1$df38dc6274beef34e751f6f1cd7929731f3927de", 
+    "originPassword" : "12345", 
+    "gender" : NumberInt(2), 
+    "role" : "user", 
+    "avatarUrl" : "default-user-profile-image.png", 
+    "coverage" : NumberInt(50), 
+    "like" : NumberInt(0), 
+    "dislike" : NumberInt(0), 
+    "likeUsers" : [
+
+    ], 
+    "dislikeUsers" : [
+
+    ], 
+    "balance" : NumberInt(0), 
+    "balanceCurrency" : "USD", 
+    "punishment" : NumberInt(0), 
+    "img" : "default-user-profile-image.png", 
+    "bio" : "Hi iam using V Chat App", 
+    "phoneNumber" : "", 
+    "address" : "", 
+    "location" : {
+        "type" : "Point", 
+        "coordinates" : [
+            NumberInt(0), 
+            NumberInt(0)
+        ]
+    }, 
+    "country" : "", 
+    "status" : "active", 
+    "chatstatus" : "online", 
+    "online" : false, 
+    "note" : "", 
+    "created" : ISODate("2021-11-25T05:51:10.945+0000"), 
+    "use_current_location_as_permanent" : false, 
+    "display_position_with_random_offset" : false, 
+    "all_new_message_alert" : false, 
+    "public_chat_room_me_alert" : false, 
+    "change_kilometers_to_miles" : false, 
+    "voice_alert" : false, 
+    "vibration_alert" : false, 
+    "do_not_disturb" : false, 
+    "__v" : NumberInt(0)
+}

@@ -1,0 +1,38 @@
+{
+  "name": "admin-panel-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "Rubnawaz",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-async-handler": "^1.2.0",
+    "firebase-admin": "^8.9.2",
+    "google-play-scraper": "^8.0.4",
+    "helmet": "^3.21.3",
+    "i18n-iso-countries": "^6.8.0",
+    "joi": "^14.3.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.0.12",
+    "mongoose-unique-validator": "^3.0.0",
+    "morgan": "^1.9.1",
+    "multer": "^1.4.2",
+    "node-fetch": "^3.0.0",
+    "nodemailer": "^6.7.0",
+    "password-hash": "^1.2.2",
+    "path": "^0.12.7",
+    "socket.io": "^2.3.0",
+    "underscore": "^1.9.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.14"
+  }
+}
