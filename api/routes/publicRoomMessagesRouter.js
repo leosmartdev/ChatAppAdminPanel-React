@@ -30,6 +30,7 @@ roomMessageRouter.post('/fetchTop/:userId', verifyToken, roomMessageController.f
 roomMessageRouter.post('/setTopMsg/:msgId/:userId', verifyToken, roomMessageController.setTopMessage);
 roomMessageRouter.post('/cancelTopMsg/:msgId/:userId', verifyToken, roomMessageController.cancelTopMessage);
 roomMessageRouter.post('/send', verifyToken, roomMessageController.sendMessage);
+roomMessageRouter.post('/announcement', verifyToken, roomMessageController.sendAnnouncement);
 roomMessageRouter.post('/upload_img_message', verifyToken, upload.single('img'), roomMessageController.uploadMessageImageOnly);
 roomMessageRouter.post('/upload_multi_imgs', verifyToken, multiUpload.any('img'), roomMessageController.uploadMultiImages);
 roomMessageRouter.get('/img-src/:imageName', roomMessageController.getImgSrc);

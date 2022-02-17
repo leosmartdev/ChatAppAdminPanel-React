@@ -12,6 +12,9 @@ const {likeSchemaModel} = require('../models/likesModel');
 const {commentSchemaModel} = require('../models/commentsModel');
 const {UserSpecialPermssionSchemaModel} = require('../models/UserSpecialPermssionModel');
 const {settingsSchemaModel} = require('../models/settingsModel');
+const {getCountryCode} = require('../geoNamesAxios');
+const mongoose = require("mongoose");
+const { isNull } = require('lodash');
 
 module.exports = {
     createUser: async (req, res) => {
@@ -34,9 +37,16 @@ module.exports = {
                 const locationObj = location.split(',');
                 location = {
                     type: "Point",
-                    coordinates: [Number(locationObj[0].trim()),Number(locationObj[1].trim())]
+                    coordinates: [Number(locationObj[1].trim()),Number(locationObj[0].trim())]
+                };
+            } else {
+                location = {
+                  type: "Point",
+                  coordinates: [37.617680, 55.755871]
                 };
             }
+            const countryCode = await getCountryCode(location.coordinates[1], location.coordinates[0]);
+            console.log(countryCode.data);
 
             return new Promise((resolve, reject) => {
                 const params = {
@@ -49,9 +59,11 @@ module.exports = {
                     phoneNumber: phoneNumber,
                     address: address,
                     location: location,
+                    country: countryCode.data.countryName,
                     isVerified: isVerified,
                     status: status,
                     note: note,
+                    like: 1,
                     created: new Date()
                 };
                 const userModel = userSchemaModel(params);
@@ -79,13 +91,15 @@ module.exports = {
     },
     updateUser: async (req, res) => {
         const {name, email, password, gender, role, phoneNumber, address, isVerified, status, note, avatarUrl, balance, balanceCurrency, punishment, fixedLocation} = req.body;
-        let {location} = req.body;
-        if (location) {
-            const locationObj = location.split(',');
+        let location = undefined, country = undefined;
+        if (fixedLocation) {
+            const locationObj = fixedLocation.split(',');
             location = {
                 type: "Point",
-                coordinates: [Number(locationObj[0]),Number(locationObj[1])]
+                coordinates: [Number(locationObj[1]),Number(locationObj[0])]
             };
+            const countryCode = await getCountryCode(Number(locationObj[0]), Number(locationObj[1]));
+            country = countryCode.data.countryName;
         }
         const params = {
             name: name,
@@ -97,6 +111,7 @@ module.exports = {
             isVerified: isVerified,
             status: status,
             location: location,
+            country: country,
             fixedLocation: fixedLocation,
             note: note,
             avatarUrl: avatarUrl,
@@ -157,7 +172,24 @@ module.exports = {
         const userId = req.params.userId;
         try {
             const user = await userSchemaModel.findById(userId);
-            res.status(200).json({error: false, data: user});
+            const parameterSettings = await settingsSchemaModel.findOne({type: "parameter"});
+            const chatAdminEmail = parameterSettings.settings.online_chat_admin_email;
+            let chatAdminId = null;
+            let isExistAdmin = false;
+            if (chatAdminEmail) {
+                const adminUser = await userSchemaModel.findOne({role: "admin", email: chatAdminEmail});
+                if (adminUser) {
+                    chatAdminId = adminUser._id;
+                    isExistAdmin = true;
+                }
+            }
+            const userSpecialPermissions = await UserSpecialPermssionSchemaModel.findOne({ userId: userId });
+            const max_coverage = (userSpecialPermissions && userSpecialPermissions.max_coverage) || (parameterSettings && parameterSettings.settings.default_coverage) || 150;
+            let userObj = user.toObject();
+            if (isNull(userObj.coverage)) {
+                userObj.coverage = max_coverage;
+            } 
+            res.status(200).json({error: false, data: {...userObj, ...{chatAdminId, isExistAdmin, max_coverage}}});
         } catch(err) {
             res.status(500).json({error: true, data: "no user found !"});
         }
@@ -188,13 +220,20 @@ module.exports = {
         }
     },
     getUsers: async (req, res) => {
-        const user = await userSchemaModel.find({},{
+        const users = await userSchemaModel.find({},{
             token: 0
         }).sort({role: 1, created: -1});
-        if (!user) {
+        let result = users.map((value, index) => {
+            let user = value.toObject();
+            let like = value.like;
+            let dislike = value.dislike;
+            user.credit = like && Number((like / (like + dislike) * 100).toFixed(2));
+            return user;
+        });
+        if (!result) {
             res.status(401).json({error: true, data: "no user found !"});
         } else {
-            res.status(200).json({error: false, data: user});
+            res.status(200).json({error: false, data: result});
         }
     },
     get_likes_posts_comments_counts: async (req, res) => {
@@ -329,12 +368,25 @@ module.exports = {
         }
     },
     saveUserSepcialPermission: async function (req, res) {
-        const settings = await UserSpecialPermssionSchemaModel.findOneAndUpdate({userId: req.params.userId}, req.body);
+        const {user_email, max_coverage, top_message_max_num, effect_year, effect_month, effect_day, valid_period} = req.body;
+        const effectDate = new Date(`${effect_year}-${effect_month}-${effect_day} 00:01:00`);
+        const expireDate = new Date(effectDate.getTime() + valid_period * 86400000);
+        let userPermissions = {
+            user_email,
+            max_coverage,
+            top_message_max_num,
+            effect_year,
+            effect_month,
+            effect_day,
+            valid_period,
+            effect_time: effectDate.getTime(),
+            expire_time: expireDate.getTime()
+        }
+        const settings = await UserSpecialPermssionSchemaModel.findOneAndUpdate({userId: req.params.userId}, userPermissions);
 
         if (!settings) {
-            let userPermissions = req.body;
             userPermissions.userId = req.params.userId;
-            const newRow = new UserSpecialPermssionSchemaModel(req.body);
+            const newRow = new UserSpecialPermssionSchemaModel(userPermissions);
             await newRow.save();
         }
         
@@ -359,41 +411,52 @@ module.exports = {
         });
     },
     getUserSettings: async (req, res) => {
-        // const {error} = idValidation(req.body);
-        // if (!error) {
-            const user_id = req.params.userId;
-            try {
-                const user = await userSchemaModel.findById(user_id);
-                const {
-                    coverage,
-                    use_current_location_as_permanent,
-                    display_position_with_random_offset,
-                    all_new_message_alert,
-                    public_chat_room_me_alert,
-                    change_kilometers_to_miles,
-                    voice_alert,
-                    vibration_alert,
-                    do_not_disturb
-                } = user;
-                const data = {
-                    coverage,
-                    use_current_location_as_permanent,
-                    display_position_with_random_offset,
-                    all_new_message_alert,
-                    public_chat_room_me_alert,
-                    change_kilometers_to_miles,
-                    voice_alert,
-                    vibration_alert,
-                    do_not_disturb
-                };
-                res.status(200).json({error: false, data: data});
-            } catch(err) {
-                res.status(500).json({error: true, data: "no user found !"});
+        const user_id = req.params.userId;
+        try {
+            const user = await userSchemaModel.findById(user_id);
+            const parameterSettings = await settingsSchemaModel.findOne({type: "parameter"});
+            const chatAdminEmail = parameterSettings.settings.online_chat_admin_email;
+            let chatAdminId = null;
+            let isExistAdmin = false;
+            if (chatAdminEmail) {
+                const adminUser = await userSchemaModel.findOne({role: "admin", email: chatAdminEmail});
+                if (adminUser) {
+                    chatAdminId = adminUser._id;
+                    isExistAdmin = true;
+                }
             }
-        // } else {
-        //     let detail = error.details[0].message;
-        //     res.status(400).send({error: true, data: detail});
-        // }
+            const {
+                use_current_location_as_permanent,
+                display_position_with_random_offset,
+                all_new_message_alert,
+                public_chat_room_me_alert,
+                change_kilometers_to_miles,
+                voice_alert,
+                vibration_alert,
+                do_not_disturb
+            } = user;
+            const userSpecialPermissions = await UserSpecialPermssionSchemaModel.findOne({ userId: user_id });
+            const max_coverage = (userSpecialPermissions && userSpecialPermissions.max_coverage) || (parameterSettings && parameterSettings.settings.default_coverage) || 150;
+            const coverage = !isNull(user.coverage) ? user.coverage : max_coverage;
+            const data = {
+                coverage,
+                max_coverage: Number(max_coverage),
+                use_current_location_as_permanent,
+                display_position_with_random_offset,
+                all_new_message_alert,
+                public_chat_room_me_alert,
+                change_kilometers_to_miles,
+                voice_alert,
+                vibration_alert,
+                do_not_disturb,
+                isExistAdmin,
+                chatAdminId
+            };
+            res.status(200).json({error: false, data: data});
+        } catch(err) {
+            console.error(err)
+            res.status(500).json({error: true, data: "no user found !"});
+        }
     },
     setUserSettings: async (req, res) => {
         const user_id = req.params.userId;
@@ -409,7 +472,7 @@ module.exports = {
             do_not_disturb
         } = req.body;
         try {
-            const data = {
+            let data = {
                 coverage,
                 use_current_location_as_permanent,
                 display_position_with_random_offset,
@@ -420,12 +483,19 @@ module.exports = {
                 vibration_alert,
                 do_not_disturb
             };
-            const user = await userSchemaModel.findByIdAndUpdate(user_id, data).exec((err) => {
+            if (use_current_location_as_permanent) {
+                const user = await userSchemaModel.findById(user_id);
+                data.fixedLocation = user.location.coordinates[1] + ',' + user.location.coordinates[0];
+            } else {
+                data.fixedLocation = "";
+            }
+            await userSchemaModel.findByIdAndUpdate(user_id, data).exec((err) => {
                 if (err) res.status(400).send({error: true, data: 'err' + err});
                 else res.json({error: false, data: "Saved Successfully"});
             });
         } catch(err) {
-            res.status(500).json({error: true, data: "no user found !"});
+            console.error(err.message);
+            res.status(500).json({error: true, data: "no user found !", err: err.message});
         }
     },
     getUserGender: async (req, res) => {
@@ -484,6 +554,8 @@ module.exports = {
 
         try {
             const user = await userSchemaModel.findById(userId);
+            const { change_kilometers_to_miles } = user;
+            // console.log(user.coverage);
             const userList = await userSchemaModel.aggregate([
                 {
                     $geoNear: {
@@ -498,9 +570,10 @@ module.exports = {
                     }
                 },
                 {
-                    $match: { _id: { $ne: userId}}
+                    $match: { _id: { $ne: new mongoose.Types.ObjectId(userId)}, online: true }
                 },
-                { $sort : { role: 1, created: -1 } },
+                { $sort : { distance: 1, created: -1 } },
+                { $limit: user.coverage || 50 },
                 {
                     $project: {
                         token: 0,
@@ -513,21 +586,28 @@ module.exports = {
             let localUsers = userList.map((value, index) => {
                 let like = value.like;
                 let dislike = value.dislike;
-                let credit = like && Math.round(like / (like + dislike) * 100);
+                let credit = like && Number((like / (like + dislike) * 100).toFixed(2));
+                const distance = change_kilometers_to_miles ? value.distance / 1000 * 0.621371 : value.distance / 1000;
+                const distance_unit = change_kilometers_to_miles ? "miles" : "km";
                 return {
                     _id: value._id,
                     name: value.name,
                     email: value.email,
                     role: value.role,
                     gender: value.gender,
+                    avatarUrl: value.avatarUrl,
                     like: value.like,
                     dislike: value.dislike,
-                    credit: credit,
-                    distance: value.distance,
-                    distancekm: `${(value.distance/1000).toFixed(2)}km`,
+                    credit: String(credit),
+                    coverage: value.coverage || 50,
+                    distance: String(distance),
+                    distance_unit,
+                    online: value.online,
+                    // distancekm: `${(value.distance/1000).toFixed(2)}km`,
+                    created: value.created,
                 }
             });
-            localUsers.sort((a, b) => a.distance > b.distance);
+            // localUsers.sort((a, b) => a.distance > b.distance);
             res.status(200).json({error: false, data: localUsers});
         } catch(err) {
             res.status(400).send({error: true, data: err.message});
@@ -548,10 +628,21 @@ module.exports = {
         const locationObj = location.split(',');
         location = {
             type: "Point",
-            coordinates: [Number(locationObj[0]),Number(locationObj[1])]
+            coordinates: [Number(locationObj[1]),Number(locationObj[0])]
         };
+        const countryCode = await getCountryCode(location.coordinates[1], location.coordinates[0]);
+        const country = countryCode.data.countryName;
         try {
-            const user = await userSchemaModel.findByIdAndUpdate(user_id, { location: location }).exec((err) => {
+            const user = await userSchemaModel.findById(user_id);
+            if (user.use_current_location_as_permanent == true) {
+                res.json({error: false, data: "Exist_Permanent_Location"});
+                return
+            }
+            if (user.fixedLocation && user.fixedLocation !== "") {
+                res.json({error: false, data: "Exist_Fixed_Location"});
+                return
+            }
+            await userSchemaModel.findByIdAndUpdate(user_id, { location: location, country: country }).exec((err) => {
                 if (err) res.status(400).send({error: true, data: 'err' + err});
                 else res.json({error: false, data: "Saved Successfully"});
             });
@@ -610,18 +701,33 @@ module.exports = {
                 token: 0, password: 0, originPassword: 0, img: 0
             });
             let userDetails = userDetailsSchema.toObject();
-            userDetails.credit = userDetails.like && Math.round(userDetails.like / (userDetails.like + userDetails.dislike) * 100);
-            const userSpecialPermssions = await UserSpecialPermssionSchemaModel.findOne({userId: userId});
+            userDetails.credit = userDetails.like && Number((userDetails.like / (userDetails.like + userDetails.dislike) * 100).toFixed(2));
+            const userSpecialPermissions = await UserSpecialPermssionSchemaModel.findOne({ userId: userId });
             const parameterSettings = await settingsSchemaModel.findOne({type: "parameter"});
-            if (userSpecialPermssions && userSpecialPermssions.max_coverage) {
-                userDetails.max_coverage = userSpecialPermssions.max_coverage;
+            if (userSpecialPermissions && userSpecialPermissions.max_coverage) {
+                userDetails.max_coverage = userSpecialPermissions.max_coverage;
             } 
             else {
                 userDetails.max_coverage = (parameterSettings && parameterSettings.settings.default_coverage) || 150;
             }
-            if (userSpecialPermssions) {
-                userDetails.specialPermissions = userSpecialPermssions;
+            if (isNull(userDetails.coverage)) {
+                userDetails.coverage = userDetails.max_coverage
             }
+            if (userSpecialPermissions) {
+                userDetails.specialPermissions = userSpecialPermissions;
+            }
+            const chatAdminEmail = parameterSettings.settings.online_chat_admin_email;
+            let chatAdminId = null;
+            let isExistAdmin = false;
+            if (chatAdminEmail) {
+                const adminUser = await userSchemaModel.findOne({role: "admin", email: chatAdminEmail});
+                if (adminUser) {
+                    chatAdminId = adminUser._id;
+                    isExistAdmin = true;
+                }
+            }
+            userDetails.isExistAdmin = isExistAdmin;
+            userDetails.chatAdminId = chatAdminId;
             res.json({error: false, data: userDetails});
         } catch(err) {
             res.status(500).json({error: true, data: "no user found !"});

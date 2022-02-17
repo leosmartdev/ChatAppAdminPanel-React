@@ -55,7 +55,7 @@ export default function ProhibitedWordNewForm({ isEdit, currentWord }) {
         if (!isEdit) {
           await axios.post('/prohibited-words/', values);
         } else {
-          await axios.put(`/prohibited-words?word=${currentWord?.word}`, values);
+          await axios.put(`/prohibited-words?id=${currentWord?._id}`, values);
         }
 
         resetForm();

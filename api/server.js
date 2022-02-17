@@ -7,6 +7,8 @@ const helmet = require('helmet'); // helmet morgan body-parser mongoose
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 
+const {initCron, stopCron} = require('./cron');
+
 const app = express();
 const connectDB = require('./config/database');
 const errorHandler = require('./middlewares/errorHandler');
@@ -16,6 +18,8 @@ connectDB();
 app.use(cors());
 app.use(express.static(__dirname + '/public'));
 app.use(express.json());
+
+initCron();
 
 // v_chat mix ---------------------------------------
 

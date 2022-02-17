@@ -31,13 +31,14 @@ export default function MailListHead({
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox">
+        {/* <TableCell padding="checkbox">
           <Checkbox
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
           />
-        </TableCell>
+        </TableCell> */}
+        <TableCell padding="checkbox" />
         {headLabel.map((headCell) => (
           <TableCell
             key={headCell.id}

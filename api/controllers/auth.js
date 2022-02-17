@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken');
 const countries = require('i18n-iso-countries');
 const passwordHash = require("password-hash");
 const nodemailer = require('nodemailer');
+const {getCountryCode} = require('../geoNamesAxios');
+const {settingsSchemaModel} = require('../models/settingsModel');
 
 exports.register = asyncHandler(async (req, res, next) => {
   // const ipinfo = await fetch(`https://ipinfo.io/?token=${process.env.IP_INFO_TOKEN}`);
@@ -29,9 +31,15 @@ exports.register = asyncHandler(async (req, res, next) => {
     const locationObj = location.split(',');
     location = {
       type: "Point",
-      coordinates: [Number(locationObj[0].trim()),Number(locationObj[1].trim())]
+      coordinates: [Number(locationObj[1].trim()),Number(locationObj[0].trim())]
+    };
+  } else {
+    location = {
+      type: "Point",
+      coordinates: [37.617680, 55.755871]
     };
   }
+  const countryCode = await getCountryCode(location.coordinates[1], location.coordinates[0]);
 
   const params = {
     name: name,
@@ -44,9 +52,11 @@ exports.register = asyncHandler(async (req, res, next) => {
     phoneNumber: phoneNumber,
     address: address,
     location: location,
+    country: countryCode.data.countryName,
     isVerified: isVerified,
     status: status,
     note: note,
+    like: 1,
     created: new Date()
   };
   
@@ -201,14 +211,16 @@ exports.retrievePasswordMailSend = asyncHandler(async (req, res, next) => {
     port: 465,               // true for 465, false for other ports
     host: "smtp.gmail.com",
     auth: {
-      user: 'Ilvirsultanovtchub21@gmail.com',
-      pass: 'admin2158600',
+      user: 'toptalkapp@gmail.com',
+      pass: 'Frank0428',
     }
   });
+  const parameterSettings = await settingsSchemaModel.findOne({type: "parameter"});
+  const fromEmail = (parameterSettings && parameterSettings.admin_mail_address) || 'toptalkapp@gmail.com';
   const mailData = {
-    from: 'Ilvirsultanovtchub21@gmail.com',  // sender address
+    from: fromEmail,  // sender address
     to: email,   // list of receivers
-    subject: 'Retrieve Password Verification Code',
+    subject: 'Toptalk APP Verification Code',
     text: 'verification code',
     html: `<b><strong>${verifyCode}</strong></b>`
   };
@@ -228,6 +240,46 @@ exports.retrievePasswordMailSend = asyncHandler(async (req, res, next) => {
         success: true,
         code: verifyCode,
         user_id: user._id,
+        message_id: info.messageId
+      });
+    }
+  });
+});
+
+exports.registerMailSend = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
+  const verifyCode = Math.floor(100000 + Math.random() * 900000);
+  const transporter = nodemailer.createTransport({
+    port: 465,               // true for 465, false for other ports
+    host: "smtp.gmail.com",
+    auth: {
+      user: 'toptalkapp@gmail.com',
+      pass: 'Frank0428',
+    }
+  });
+  const parameterSettings = await settingsSchemaModel.findOne({type: "parameter"});
+  const fromEmail = (parameterSettings && parameterSettings.admin_mail_address) || 'toptalkapp@gmail.com';
+  const mailData = {
+    from: fromEmail,  // sender address
+    to: email,   // list of receivers
+    subject: 'Toptalk APP Verification Code',
+    text: 'verification code',
+    html: `<b><strong>${verifyCode}</strong></b>`
+  };
+  transporter.sendMail(mailData, function (err, info) {
+    if(err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: 'Failed Mail Sending',
+        code: verifyCode,
+        error: err
+      });
+    }
+    else {
+      res.json({
+        success: true,
+        code: verifyCode,
         message_id: info.messageId
       });
     }

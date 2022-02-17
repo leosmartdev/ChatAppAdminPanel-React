@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const UserSpecialPermissionSchema = new mongoose.Schema({
   userId: {
     type: String,
-    required: true
   },
   user_email: {
     type: String,
@@ -34,6 +33,14 @@ const UserSpecialPermissionSchema = new mongoose.Schema({
     type: Number,
     default: null
   },
+  effect_time: {
+    type: Number,
+    default: 0
+  },
+  expire_time: {
+    type: Number,
+    default: 0
+  }
 });
 
 var UserSpecialPermssionSchemaModel = mongoose.model('userSpecialPermssion', UserSpecialPermissionSchema);

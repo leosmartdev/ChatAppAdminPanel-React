@@ -9,7 +9,8 @@ const {
     putState,
     getState,
     retrievePasswordMailSend,
-    resetPassword
+    resetPassword,
+    registerMailSend
 } = require('../controllers/auth');
 const { verifyToken } = require('../middlewares/authHandler');
 
@@ -21,6 +22,7 @@ router.route('/adminlogin').post(adminlogin);
 router.route('/me').get(verifyToken, myAccount);
 router.route('/logout').post(verifyToken, logout);
 router.route('/retrieve-pwd-mail-send').post(retrievePasswordMailSend);
+router.route('/register-mail-send').post(registerMailSend);
 router.route('/reset-password/:userId').post(resetPassword);
 
 module.exports = router;

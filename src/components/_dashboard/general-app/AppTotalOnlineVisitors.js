@@ -53,7 +53,7 @@ export default function AppTotalOnlineVisitors({ totalUsers }) {
   return (
     <Card sx={{ display: 'flex', alignItems: 'center', p: 3 }}>
       <Box sx={{ flexGrow: 1 }}>
-        <Typography variant="subtitle2">Online Visitors</Typography>
+        <Typography variant="subtitle2">Total Online Users</Typography>
 
         <Typography variant="h3">{fNumber(totalUsers)}</Typography>
       </Box>

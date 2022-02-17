@@ -2,10 +2,34 @@
 //created by Hatem Ragap
 const {roomsSchemaModel} = require("../models/conversionsModel");
 const {userSchemaModel} = require("../models/userModel");
-const {messageSchemaModel} = require("../models/messagesModel")
+const {messageSchemaModel} = require("../models/messagesModel");
+const {settingsSchemaModel} = require('../models/settingsModel');
 const mongoose = require("mongoose");
 
 const _ = require("underscore");
+
+//This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in km)
+function calcCrow(lat1, lon1, lat2, lon2) 
+{
+    var R = 6371; // km
+    var dLat = toRad(lat2-lat1);
+    var dLon = toRad(lon2-lon1);
+    var lat1 = toRad(lat1);
+    var lat2 = toRad(lat2);
+
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2); 
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    var d = R * c;
+    return d;
+}
+
+// Converts numeric degrees to radians
+function toRad(Value) 
+{
+    return Value * Math.PI / 180;
+}
+
 module.exports = {
     createChatRoom: async (req, res) => {
         const {user_one, user_two, lastMessage} = req.body;
@@ -46,19 +70,60 @@ module.exports = {
             const keys = Object.keys(listOfOnlineAndOffline);
             let result = {};
             try {
-                let chats = await roomsSchemaModel.find({users: userId}).sort({updatedAt: -1}).populate("users", "_id name email gender role avatarUrl online like dislike coverage");
+                const user = await userSchemaModel.findById(userId);
+                const { change_kilometers_to_miles } = user;
+                // const conversations = await roomsSchemaModel.aggregate([
+                //     { $match: {users: userId} },
+                //     { $sort: {updatedAt: -1} }
+                // ]).exec();
+                // let chats = await roomsSchemaModel.populate(conversations, {
+                //     path: "users",
+                //     select: "_id name email gender role avatarUrl online like dislike coverage location"
+                // });
+                let chats = await roomsSchemaModel.find({users: userId}).sort({created: -1}).populate("users", "_id name email gender role avatarUrl online like dislike coverage location");
+                const parameterSettings = await settingsSchemaModel.findOne({type: "parameter"});
+                const chatAdminEmail = parameterSettings.settings.online_chat_admin_email;
 
-                let chatsResult = chats.map((value, index) => {
-                    let friend = value.users.find((user) => user._id !== userId);
-                    let friendId = friend._id;
-                    let isAdminChat = friend.role === "admin";
+                let chatsResult = chats.filter((value) => value.users.length == 2).map((value, index) => {
+                    let friend = value.users.find((value) => value._id.toString() !== userId);
+                    let friendId = null;
+                    let isAdminChat = false;
+                    let isAdminChannel = false;
+                    let distance = 0;
+                    let credit = 0;
+                    if (friend !== undefined) {
+                        friendId = friend._id;
+                        isAdminChat = friend.role === "admin";
+                        isAdminChannel = friend.role === "admin" && friend.email == chatAdminEmail;
+                        distance = calcCrow(user.location.coordinates[1], user.location.coordinates[0], friend.location.coordinates[1], friend.location.coordinates[0]);
+                        distance = change_kilometers_to_miles ? distance * 0.621371 : distance;
+                        credit = friend.like && Number((friend.like / (friend.like + friend.dislike) * 100).toFixed(2));
+                    }
+                    const distance_unit = change_kilometers_to_miles ? "miles" : "km";
+                    const timeDif = Date.now() - value.lastMessage.updated;
+                    const secsDif = Math.floor(timeDif / 1000);
+                    const minsDif = Math.floor(timeDif / 60000);
+                    const hoursDif = Math.floor(timeDif / 3600000);
+                    const daysDif = Math.floor(timeDif / 86400000);
+                    let timeDifStr;
+                    if (secsDif < 60) {
+                        timeDifStr = `${secsDif} sec${secsDif>1 ? 's' : ''} ago`;
+                    } else if (minsDif < 60) {
+                        timeDifStr = `${minsDif} min${minsDif>1 ? 's' : ''} ago`;
+                    } else if (hoursDif < 24) {
+                        timeDifStr = `${hoursDif} hour${hoursDif>1 ? 's' : ''} ago`;
+                    } else {
+                        timeDifStr = `${daysDif} day${daysDif>1 ? 's' : ''} ago`;
+                    }
+                    
                     return {
                         _id: value._id,
                         friendId: friendId,
-                        friend: friend,
+                        friend: {...friend.toObject(), ...{distance: String(distance), distance_unit, credit: String(credit)}},
                         isAdminChat: isAdminChat,
+                        isAdminChannel: isAdminChannel,
                         users: value.users,
-                        lastMessage: value.lastMessage,
+                        lastMessage: {...value.lastMessage, ...{timeDiff: timeDifStr}},
                         created: value.created,
                         createdAt: value.createdAt,
                         updatedAt: value.updatedAt,
@@ -66,6 +131,8 @@ module.exports = {
                 });
 
                 chatsResult.sort((a, b) => {
+                    if (!a.isAdminChannel && b.isAdminChannel)
+                        return 1;
                     if (!a.isAdminChat && b.isAdminChat)
                         return 1;
                     return -1;
@@ -79,7 +146,7 @@ module.exports = {
             } catch (error) {
                 result.onLineUsersId = [];
                 result.error = true;
-                result.data = `there are error ${error}`;
+                result.data = `there are error ${error.message}`;
                 res.status(400).send({error: true, data: result})
             }
 

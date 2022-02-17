@@ -4,7 +4,6 @@ import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
 import plusFill from '@iconify/icons-eva/plus-fill';
 import { Link as RouterLink } from 'react-router-dom';
-import axios from 'axios';
 // material
 import { useTheme } from '@material-ui/core/styles';
 import {
@@ -43,6 +42,7 @@ import {
   ProhibitedWordMoreMenu,
   ProhibitedWordMessageForm
 } from '../../components/_dashboard/prohibited-words/list';
+import axios from '../../utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -176,7 +176,7 @@ export default function ProhibitedWordsList() {
           }
         />
 
-        <ProhibitedWordMessageForm prohibitedWordSettings={prohibitedWordSettings} />
+        {/* <ProhibitedWordMessageForm prohibitedWordSettings={prohibitedWordSettings} /> */}
 
         <Card>
           <ProhibitedWordListToolbar
@@ -222,7 +222,7 @@ export default function ProhibitedWordsList() {
                           </Stack>
                         </TableCell>
                         <TableCell align="right">
-                          <ProhibitedWordMoreMenu onDelete={() => handleDeleteWord(_id)} word={word} />
+                          <ProhibitedWordMoreMenu onDelete={() => handleDeleteWord(_id)} word={word} id={_id} />
                         </TableCell>
                       </TableRow>
                     );

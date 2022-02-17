@@ -18,6 +18,14 @@ var roomsSchema = mongoose.Schema({
             type: String,
             default: 'first msg'
         },
+        unread_count: {
+            type: Number,
+            default: 0
+        },
+        updated: {
+            type: Number,
+            default: Date.now()
+        }
     },
     created: {
         type: Date,

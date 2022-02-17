@@ -42,44 +42,44 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName 
   const isLight = theme.palette.mode === 'light';
 
   return (
-    <RootStyle
-      sx={{
+    <RootStyle>
+      {/* sx={{
         ...(numSelected > 0 && {
           color: isLight ? 'primary.main' : 'text.primary',
           bgcolor: isLight ? 'primary.lighter' : 'primary.dark'
         })
       }}
-    >
-      {numSelected > 0 ? (
+    > */}
+      {/* {numSelected > 0 ? (
         <Typography component="div" variant="subtitle1">
           {numSelected} selected
         </Typography>
-      ) : (
-        <SearchStyle
-          value={filterName}
-          onChange={onFilterName}
-          placeholder="Search word..."
-          startAdornment={
-            <InputAdornment position="start">
-              <Box component={Icon} icon={searchFill} sx={{ color: 'text.disabled' }} />
-            </InputAdornment>
-          }
-        />
-      )}
+      ) : ( */}
+      <SearchStyle
+        value={filterName}
+        onChange={onFilterName}
+        placeholder="Search word..."
+        startAdornment={
+          <InputAdornment position="start">
+            <Box component={Icon} icon={searchFill} sx={{ color: 'text.disabled' }} />
+          </InputAdornment>
+        }
+      />
+      {/* )} */}
 
-      {numSelected > 0 ? (
+      {/* {numSelected > 0 ? (
         <Tooltip title="Delete">
           <IconButton>
             <Icon icon={trash2Fill} />
           </IconButton>
         </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <Icon icon={roundFilterList} />
-          </IconButton>
-        </Tooltip>
-      )}
+      ) : ( */}
+      <Tooltip title="Filter list">
+        <IconButton>
+          <Icon icon={roundFilterList} />
+        </IconButton>
+      </Tooltip>
+      {/* )} */}
     </RootStyle>
   );
 }

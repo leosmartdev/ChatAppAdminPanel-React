@@ -1,11 +1,7 @@
-import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-import { useCallback } from 'react';
 import { useSnackbar } from 'notistack5';
 import { useNavigate } from 'react-router-dom';
 import { Form, FormikProvider, useFormik } from 'formik';
-// material
-import { LoadingButton } from '@material-ui/lab';
 import {
   Box,
   Card,
@@ -20,25 +16,32 @@ import {
 } from '@material-ui/core';
 // utils
 import axios from '../../../utils/axios';
-import { fData } from '../../../utils/formatNumber';
 import fakeRequest from '../../../utils/fakeRequest';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 //
 import Label from '../../Label';
-import { UploadAvatar } from '../../upload';
-import countries from './countries';
 import { serverConfig } from '../../../config';
 
 // ----------------------------------------------------------------------
 
 UserDetailsForm.propTypes = {
-  currentUser: PropTypes.object
+  currentUser: PropTypes.object,
+  userSpecialPermissions: PropTypes.object,
+  parameterSettings: PropTypes.object
 };
 
-export default function UserDetailsForm({ currentUser }) {
+export default function UserDetailsForm({ currentUser, userSpecialPermissions, parameterSettings }) {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const role = currentUser
+    ? ((currentUser.role === 'user' || currentUser.role === 's-user') && userSpecialPermissions && 's-user') ||
+      currentUser.role
+    : '';
+  const displayMaxCoverage =
+    (userSpecialPermissions && userSpecialPermissions.max_coverage) ||
+    (parameterSettings && parameterSettings.settings.default_coverage) ||
+    150;
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -47,8 +50,10 @@ export default function UserDetailsForm({ currentUser }) {
       email: currentUser?.email || '',
       password: '',
       gender: currentUser && currentUser.gender > -1 ? currentUser.gender : '',
-      role: currentUser?.role || '',
+      role: role || '',
       coverage: currentUser?.coverage || 50,
+      max_coverage: displayMaxCoverage,
+      location: currentUser ? `${currentUser.location.coordinates[1]}, ${currentUser.location.coordinates[0]}` : '',
       fixedLocation: currentUser?.fixedLocation || '',
       phoneNumber: currentUser?.phoneNumber || '',
       address: currentUser?.address || '',
@@ -84,20 +89,7 @@ export default function UserDetailsForm({ currentUser }) {
     }
   });
 
-  const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
-
-  const handleDrop = useCallback(
-    (acceptedFiles) => {
-      const file = acceptedFiles[0];
-      if (file) {
-        setFieldValue('avatarUrl', {
-          ...file,
-          preview: URL.createObjectURL(file)
-        });
-      }
-    },
-    [setFieldValue]
-  );
+  const { errors, values, touched, handleSubmit, setFieldValue, getFieldProps } = formik;
 
   return (
     <FormikProvider value={formik}>
@@ -219,7 +211,7 @@ export default function UserDetailsForm({ currentUser }) {
 
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
                   <TextField disabled fullWidth label="Location" {...getFieldProps('country')} />
-                  <TextField disabled fullWidth label="Latitude and logintude" {...getFieldProps('fixedLocation')} />
+                  <TextField disabled fullWidth label="Latitude and logintude" {...getFieldProps('location')} />
                 </Stack>
 
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>

@@ -38,21 +38,29 @@ export default function GeneralApp() {
   const [selectedDate, setSelectedDate] = React.useState(format(new Date(), 'yyyy-MM-dd'));
   const { user } = useAuth();
 
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
   };
 
   React.useEffect(() => {
     async function getAnalytics() {
-      const { data } = await axios.get('/analytics');
-      setTotalUsers(data.total_user);
-      setTotalRegisteredUsers(data.registered_user);
-      setTotalOnlineVisitors(data.online_visitor);
-      setTotalInstalled(data.statistics.installs);
-      setTotalDownloads(data.statistics.maxInstalls);
+      if (selectedDate) {
+        const { data } = await axios.get(`/analytics/logs/${selectedDate}`);
+        if (data.error) {
+          console.log(data);
+          setTotalRegisteredUsers(0);
+          setTotalOnlineVisitors(0);
+          return;
+        }
+        // setTotalUsers(data.logs.active_user_num);
+        setTotalRegisteredUsers(data.logs.register_user_num);
+        setTotalOnlineVisitors(data.logs.online_user_num);
+        // setTotalInstalled(data.statistics.installs);
+        // setTotalDownloads(data.statistics.maxInstalls);
+      }
     }
     getAnalytics();
-  }, []);
+  }, [selectedDate]);
 
   return (
     <Page title="App | Locals">
@@ -71,28 +79,28 @@ export default function GeneralApp() {
               defaultValue={selectedDate}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          {/* <Grid item xs={12} md={4}>
             <AppTotalActiveUsers totalUsers={totalUsers} />
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <AppTotalRegisterUsers totalUsers={totalRegisteredUsers} />
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12} md={4}>
             <AppTotalOnlineVisitors totalUsers={totalOnlineVisitors} />
           </Grid>
 
           <Grid item xs={12} md={4}>
-            <AppTotalInstalled totalInstalled={totalInstalled} />
+            <AppTotalRegisterUsers totalUsers={totalRegisteredUsers} />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          {/* <Grid item xs={12} md={4}>
+            <AppTotalInstalled totalInstalled={totalInstalled} />
+          </Grid> */}
+
+          {/* <Grid item xs={12} md={4}>
             <AppTotalDownloads totalDownloads={totalDownloads} />
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12} md={12} lg={12}>
-            <AppTotalChart />
+            <AppTotalChart chartDate={selectedDate} />
           </Grid>
         </Grid>
       </Container>

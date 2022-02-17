@@ -60,9 +60,9 @@ export default function MailListToolbar({
   return (
     <RootStyle>
       <SearchStyle value={filterLocation} onChange={onFilterLocation} placeholder="Location" />
-      <SearchStyle value={filterCoverage} onChange={onFilterCoverage} placeholder="Coverage" />
-      <SearchStyle value={filterBalance} onChange={onFilterBalance} placeholder="Balance" />
-      <SearchStyle value={filterCredit} onChange={onFilterCredit} placeholder="Credit" />
+      <SearchStyle value={filterCoverage} onChange={onFilterCoverage} placeholder="Coverage ≥" />
+      <SearchStyle value={filterBalance} onChange={onFilterBalance} placeholder="Balance ≥" />
+      <SearchStyle value={filterCredit} onChange={onFilterCredit} placeholder="Credit% ≥" />
     </RootStyle>
   );
 }

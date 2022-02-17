@@ -4,6 +4,12 @@ const _ = require("underscore");
 const {messageSchemaModel} = require("../models/messagesModel");
 const {userSchemaModel} = require("../models/userModel");
 const {roomsSchemaModel} = require("../models/conversionsModel");
+const BlockLimitedWord = require('../models/BlockLimitedWord');
+const ProhibitedWord = require('../models/ProhibitedWord');
+
+function has10OrLessCJK(text) {
+    return /^[\u3000\u3400-\u4DBF\u4E00-\u9FFF]{0,9}$/.test(text);
+}
 
 module.exports = io => {
     // var admin = require("firebase-admin");
@@ -15,8 +21,11 @@ module.exports = io => {
             let chatId = objectValue["chatId"];
             let userId = objectValue["userId"];
             let chat = await roomsSchemaModel.findById(chatId);
-            chat.lastMessage.users_see_message.push(userId);
-            chat.save();
+            if (chat) {
+                chat.lastMessage.users_see_message.push(userId);
+                chat.lastMessage.unread_count = 0;
+                chat.save();
+            }
             io.of("/api/chatRoomList").emit("updateChatRoomList");
         });
 
@@ -59,6 +68,35 @@ module.exports = io => {
 
             let message_type = objectValue["message_type"];
             let imgs = objectValue["imgs"];
+            // message forbidden words replace with ***
+            const prohibitedwordsList = await ProhibitedWord.find().select({'word': 1});
+            const prohibitedwords = await prohibitedwordsList.map((value) => value.word.toLowerCase());
+            // const limitblockwordsList = await BlockLimitedWord.find().select({'word': 1});
+            // const limitblockwords = await limitblockwordsList.map((value) => value.word.toLowerCase());
+            const limitblockwords = [];
+            const forbiddenWords = [...prohibitedwords, ...limitblockwords];
+            let lcmessage = message.toLowerCase();
+            for (let i = 0; i < forbiddenWords.length; i++) {
+                const word = forbiddenWords[i];
+                let replaceString = '';
+                for (let j = 0; j < word.length; j++) {
+                    replaceString = replaceString.concat('*');
+                }
+                if (has10OrLessCJK(word)) {     // if chinese word
+                    // console.log(word, replaceString);
+                    lcmessage = lcmessage.replace(new RegExp(`${word}`, 'g'), replaceString);
+                }
+                else {
+                    lcmessage = lcmessage.replace(new RegExp(`\\b${word}\\b`, 'g'), replaceString);
+                }
+            }
+            for (let j = 0; j < lcmessage.length; j++) {
+                if (lcmessage[j] == '*') {
+                    let a = message.split("");
+                    a[j] = '*';
+                    message = a.join("");
+                }
+            }
 
             let model = messageSchemaModel({
                 _id: messageId,
@@ -94,6 +132,7 @@ module.exports = io => {
                     socket.to(chat_id).broadcast.emit("msgReceive", w);
                 }
             });
+
             var clientsInRoom = io.nsps["/api/message"].adapter.rooms[chat_id];
             var numClients =
                 clientsInRoom === undefined
@@ -103,7 +142,8 @@ module.exports = io => {
             if (numClients === 2) {
                 let msgN = {
                     users_see_message: [sender_id, receiver_id],
-                    message: message
+                    message: message,
+                    unread_count: 0
                 };
                 await roomsSchemaModel.findByIdAndUpdate(chat_id, {
                     created: Date.now(),
@@ -115,22 +155,22 @@ module.exports = io => {
 
                 let peerUserData = await userSchemaModel.findById(sender_id);
 
-                var payload = {
-                    notification: {
-                        body: `${message}`,
-                        title: `${sender_name} send message`,
-                    },
-                    data: {
-                        "img": `${peerUserData["img"]}`,
-                        "name": `${peerUserData["user_name"]}`,
-                        "id": `${peerUserData["_id"]}`,
-                        "chatId": `${chat['_id']}`,
-                        "token": `${peerUserData["token"]}`,
-                        "screen": "chat",
-                        'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-                    },
+                // var payload = {
+                //     notification: {
+                //         body: `${message}`,
+                //         title: `${sender_name} send message`,
+                //     },
+                //     data: {
+                //         "img": `${peerUserData["img"]}`,
+                //         "name": `${peerUserData["user_name"]}`,
+                //         "id": `${peerUserData["_id"]}`,
+                //         "chatId": `${chat['_id']}`,
+                //         "token": `${peerUserData["token"]}`,
+                //         "screen": "chat",
+                //         'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+                //     },
 
-                };
+                // };
 
                 // var options = {
                 //     priority: "high",
@@ -147,7 +187,9 @@ module.exports = io => {
 
                 let msgN = {
                     users_see_message: [sender_id],
-                    message: message
+                    message: message,
+                    unread_count: chat.lastMessage.unread_count + 1,
+                    updated: Date.now()
                 };
                 await roomsSchemaModel.findByIdAndUpdate(chat_id, {
                     created: Date.now(),

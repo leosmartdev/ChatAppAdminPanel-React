@@ -28,6 +28,21 @@ module.exports = {
             let createDate = new Date(created * 1000);
             let send_date = (createDate.getMonth() + 1) + "-" + createDate.getDate();
             let send_time = createDate.getHours() + ":" + createDate.getMinutes();
+            const timeDif = Date.now() - value.created * 1000;
+            const secsDif = Math.floor(timeDif / 1000);
+            const minsDif = Math.floor(timeDif / 60000);
+            const hoursDif = Math.floor(timeDif / 3600000);
+            const daysDif = Math.floor(timeDif / 86400000);
+            let timeDifStr;
+            if (secsDif < 60) {
+                timeDifStr = `${secsDif} sec${secsDif>1 ? 's' : ''} ago`;
+            } else if (minsDif < 60) {
+                timeDifStr = `${minsDif} min${minsDif>1 ? 's' : ''} ago`;
+            } else if (hoursDif < 24) {
+                timeDifStr = `${hoursDif} hour${hoursDif>1 ? 's' : ''} ago`;
+            } else {
+                timeDifStr = `${daysDif} day${daysDif>1 ? 's' : ''} ago`;
+            }
             return {
                 _id: value._id,
                 message: value.message,
@@ -38,7 +53,8 @@ module.exports = {
                 receiver_id: value.receiver_id,
                 send_date: send_date,
                 send_time: send_time,
-                created: value.created
+                timeDiff: timeDifStr,
+                created: value.created,
             }
         });
 
@@ -85,8 +101,13 @@ module.exports = {
 
     uploadMultiImages: async (req, res) => {
         const files = req.files;
-        const fileNames = await files.map((file) => file.filename);
-        res.send({error: false, data: fileNames});
+        if (files) {
+            const fileNames = await files.map((file) => file.filename);
+            res.send({error: false, data: fileNames});
+        }
+        else {
+            res.send({error: true, data: []});
+        }
     },
 
     getImgSrc: async (req, res) => {

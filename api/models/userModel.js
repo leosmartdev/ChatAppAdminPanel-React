@@ -41,8 +41,7 @@ const userSchema = mongoose.Schema({
         default: 'default-user-profile-image.png'
     },
     coverage: {
-        type: Number,
-        default: 50
+        type: Number
     },
     like: {
         type: Number,
@@ -81,7 +80,10 @@ const userSchema = mongoose.Schema({
         default: 'Hi iam using V Chat App'
     },
     phoneNumber: String,
-    address: String,
+    address: {
+        type: String,
+        default: ''
+    },
     zipCode: String,
     location: {
         type: {

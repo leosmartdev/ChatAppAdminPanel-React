@@ -87,7 +87,7 @@ const slice = createSlice({
       const { conversationId } = action.payload;
       const conversation = state.conversations.byId[conversationId];
       if (conversation) {
-        conversation.unreadCount = 0;
+        conversation.lastMessage.unread_count = 0;
       }
     },
 

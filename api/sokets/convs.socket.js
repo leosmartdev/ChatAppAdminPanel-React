@@ -2,6 +2,9 @@
 const _ = require("underscore");
 const {roomsSchemaModel} = require('../models/conversionsModel');
 
+function has10OrLessCJK(text) {
+    return /^[\u3000\u3400-\u4DBF\u4E00-\u9FFF]{0,9}$/.test(text);
+}
 
 module.exports = io => {
 
@@ -53,7 +56,7 @@ module.exports = io => {
             } catch (error) {
                 result.onLineUsersId = [];
                 result.error = true;
-                result.data = `there are error ${error}`;
+                result.data = `there are error ${error.message}`;
                 socket.emit('ConversionsListReady', result);
             }
 

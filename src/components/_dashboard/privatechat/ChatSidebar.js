@@ -7,7 +7,7 @@ import arrowIosBackFill from '@iconify/icons-eva/arrow-ios-back-fill';
 import arrowIosForwardFill from '@iconify/icons-eva/arrow-ios-forward-fill';
 // material
 import { useTheme, styled } from '@material-ui/core/styles';
-import { Box, useMediaQuery } from '@material-ui/core';
+import { Box, useMediaQuery, Checkbox, FormControlLabel } from '@material-ui/core';
 // redux
 import { useSelector } from '../../../redux/store';
 // utils
@@ -45,6 +45,7 @@ export default function ChatSidebar() {
   const [isSearchFocused, setSearchFocused] = useState(false);
   const displayResults = searchQuery && isSearchFocused;
   const { conversations, activeConversationId } = useSelector((state) => state.privatechat);
+  const [onlyUnreadShow, setOnlyUnreadShow] = useState(false);
 
   useEffect(() => {
     if (isMobile) {
@@ -98,6 +99,10 @@ export default function ChatSidebar() {
     }
   };
 
+  const handleUnreadShowChange = (e) => {
+    setOnlyUnreadShow(e.target.checked);
+  };
+
   return (
     <RootStyle sx={{ ...(!openSidebar && { width: 96 }) }}>
       <Box sx={{ py: 2, px: 3 }}>
@@ -114,26 +119,34 @@ export default function ChatSidebar() {
         </Box>
 
         {openSidebar && (
-          <ChatContactSearch
-            query={searchQuery}
-            onFocus={handleSearchFocus}
-            onChange={handleChangeSearch}
-            onClickAway={handleClickAwaySearch}
-          />
+          <Box>
+            <ChatContactSearch
+              query={searchQuery}
+              onFocus={handleSearchFocus}
+              onChange={handleChangeSearch}
+              onClickAway={handleClickAwaySearch}
+            />
+            <FormControlLabel
+              control={<Checkbox checked={onlyUnreadShow} onChange={handleUnreadShowChange} />}
+              label="display unread chat partner only"
+            />
+          </Box>
         )}
       </Box>
 
       <Scrollbar>
-        {!displayResults ? (
-          <ChatConversationList
-            conversations={conversations}
-            isOpenSidebar={openSidebar}
-            activeConversationId={activeConversationId}
-            sx={{ ...(isSearchFocused && { display: 'none' }) }}
-          />
-        ) : (
+        {/* {!displayResults ? ( */}
+        <ChatConversationList
+          conversations={conversations}
+          isOpenSidebar={openSidebar}
+          activeConversationId={activeConversationId}
+          // sx={{ ...(isSearchFocused && { display: 'none' }) }}
+          query={searchQuery}
+          onlyUnreadShow={onlyUnreadShow}
+        />
+        {/* ) : (
           <ChatSearchResults query={searchQuery} results={searchResults} onSelectContact={handleSelectContact} />
-        )}
+        )} */}
       </Scrollbar>
     </RootStyle>
   );

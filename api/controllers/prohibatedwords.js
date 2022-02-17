@@ -26,7 +26,7 @@ exports.addNewProhibitedWord = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateProhibitedWord = asyncHandler(async (req, res, next) => {
-  const prohibitedword = await ProhibitedWord.findOneAndUpdate({ word: req.query.word }, req.body);
+  const prohibitedword = await ProhibitedWord.findByIdAndUpdate(req.query.id, req.body);
 
   res.json({
     success: true,

@@ -59,7 +59,7 @@ const TABLE_HEAD = [
   { id: 'balance', label: 'Balance', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: 'max_coverage', label: 'Max Coverage', alignRight: false },
-  { id: 'location', label: 'Location', alignRight: false },
+  { id: 'country', label: 'Location', alignRight: false },
   { id: 'operation', label: 'Operation', alignRight: false }
 ];
 
@@ -270,7 +270,7 @@ export default function UserList() {
                       online
                     } = row;
                     const userSpecialPermissions = specialPermissionList.find(
-                      (specialPermssion) => paramCase(specialPermssion.userId) === _id
+                      (specialPermssion) => specialPermssion.userId && paramCase(specialPermssion.userId) === _id
                     );
                     const displayRole =
                       (role === 'user' || role === 's-user') && userSpecialPermissions ? 's-user' : role;
@@ -278,7 +278,7 @@ export default function UserList() {
                     const avatarImgSrc = `${serverConfig.baseUrl}/user/img-src/${avatarUrl}`;
                     const displayMaxCoverage =
                       (userSpecialPermissions && userSpecialPermissions.max_coverage) ||
-                      (parameterSettings && parameterSettings.default_coverage) ||
+                      (parameterSettings && parameterSettings.settings.default_coverage) ||
                       150;
 
                     return (
@@ -343,7 +343,7 @@ export default function UserList() {
                           </Label>
                         </TableCell>
                         <TableCell align="left">{(role !== 'admin' && displayMaxCoverage) || 'all'}</TableCell>
-                        <TableCell align="left">{address}</TableCell>
+                        <TableCell align="left">{country}</TableCell>
 
                         <TableCell align="right">
                           <UserMoreMenu onDelete={() => onDeleteUser(_id)} userName={name} userId={_id} />

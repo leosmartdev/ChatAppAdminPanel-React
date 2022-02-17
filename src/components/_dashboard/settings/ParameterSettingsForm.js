@@ -60,6 +60,8 @@ export default function ParameterSettingsForm({ settingsData }) {
       downloads_message_num: settingsData?.settings.downloads_message_num || 100,
       message_limit_character_num: settingsData?.settings.message_limit_character_num || 1000,
       domain_name: settingsData?.settings.domain_name || 'toptalk.app',
+      admin_mail_address: settingsData?.settings.admin_mail_address || '',
+      online_chat_admin_email: settingsData?.settings.online_chat_admin_email || '',
       app_use_hour: settingsData?.settings.app_use_hour || 1,
       top_message_num: settingsData?.settings.top_message_num || 1,
       top_message_save_hour: settingsData?.settings.top_message_save_hour || 24,
@@ -173,6 +175,26 @@ export default function ParameterSettingsForm({ settingsData }) {
                     style={{ width: 120 }}
                     error={Boolean(touched.domain_name && errors.domain_name)}
                     helperText={touched.domain_name && errors.domain_name}
+                  />
+                  <Typography variant="body1" component="div" style={{ lineHeight: 2 }}>
+                    Admin mail address:
+                  </Typography>
+                  <TextField
+                    {...getFieldProps('admin_mail_address')}
+                    variant="standard"
+                    style={{ width: 150 }}
+                    error={Boolean(touched.admin_mail_address && errors.admin_mail_address)}
+                    helperText={touched.admin_mail_address && errors.admin_mail_address}
+                  />
+                  <Typography variant="body1" component="div" style={{ lineHeight: 2 }}>
+                    Online chat admin email:
+                  </Typography>
+                  <TextField
+                    {...getFieldProps('online_chat_admin_email')}
+                    variant="standard"
+                    style={{ width: 150 }}
+                    error={Boolean(touched.online_chat_admin_email && errors.online_chat_admin_email)}
+                    helperText={touched.online_chat_admin_email && errors.online_chat_admin_email}
                   />
                 </Stack>
 

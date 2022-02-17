@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import { formatDistanceToNowStrict } from 'date-fns';
 // material
 import { styled } from '@material-ui/core/styles';
-import { Box, Avatar, ListItemText, ListItemAvatar, ListItemButton } from '@material-ui/core';
+import { Box, Avatar, ListItemText, ListItemAvatar, ListItemButton, Badge } from '@material-ui/core';
 //
 import BadgeStatus from '../../BadgeStatus';
 import { serverConfig } from '../../../config';
+// hooks
+import useAuth from '../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -52,20 +54,27 @@ ChatConversationItem.propTypes = {
 export default function ChatConversationItem({
   isSelected,
   opponent,
-  // conversation,
+  conversation,
   onSelectConversation,
   isOpenSidebar,
   ...other
 }) {
+  const { user } = useAuth();
   // const displayLastActivity = last(conversation.messages).createdAt;
   const displayLastActivity = opponent.created;
   // const isGroup = details.otherParticipants.length > 1;
   const isGroup = false;
-  // const isUnread = conversation.unreadCount > 0;
-  const isUnread = false;
   // const isOnlineGroup = isGroup && details.otherParticipants.map((item) => item.status).includes('online');
   const avatarImgSrc = `${serverConfig.baseUrl}/user/img-src/${opponent.avatarUrl}`;
   const opponentStatus = opponent.online ? 'online' : 'offline';
+
+  const unreadCount =
+    (conversation &&
+      (conversation.lastMessage.users_see_message.indexOf(user._id) > -1
+        ? 0
+        : conversation.lastMessage.unread_count)) ||
+    0;
+  const isUnread = unreadCount > 0;
 
   return (
     <RootStyle
@@ -118,7 +127,7 @@ export default function ChatConversationItem({
               noWrap: true,
               variant: 'subtitle2'
             }}
-            secondary="last message here"
+            secondary={conversation && conversation.lastMessage.message}
             secondaryTypographyProps={{
               noWrap: true,
               variant: isUnread ? 'subtitle2' : 'body2',
@@ -148,7 +157,8 @@ export default function ChatConversationItem({
                 addSuffix: false
               })}
             </Box>
-            {isUnread && <BadgeStatus status="unread" size="small" />}
+            {/* {isUnread && <BadgeStatus status="unread" size="small" />} */}
+            {isUnread && <Badge color="secondary" badgeContent={unreadCount} />}
           </Box>
         </>
       )}

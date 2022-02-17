@@ -15,10 +15,11 @@ import { PATH_DASHBOARD } from '../../../../routes/paths';
 
 UserMoreMenu.propTypes = {
   onDelete: PropTypes.func,
-  word: PropTypes.string
+  word: PropTypes.string,
+  id: PropTypes.string
 };
 
-export default function UserMoreMenu({ onDelete, word }) {
+export default function UserMoreMenu({ onDelete, word, id }) {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -47,7 +48,7 @@ export default function UserMoreMenu({ onDelete, word }) {
 
         <MenuItem
           component={RouterLink}
-          to={`${PATH_DASHBOARD.prohibitedwords.root}/${paramCase(word)}/edit`}
+          to={`${PATH_DASHBOARD.prohibitedwords.root}/${paramCase(id)}/edit`}
           sx={{ color: 'text.secondary' }}
         >
           <ListItemIcon>

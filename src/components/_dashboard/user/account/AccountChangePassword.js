@@ -63,7 +63,7 @@ export default function AccountChangePassword() {
               {...getFieldProps('oldPassword')}
               fullWidth
               autoComplete="on"
-              type="password"
+              // type="password"
               label="Old Password"
               error={Boolean(touched.oldPassword && errors.oldPassword)}
               helperText={touched.oldPassword && errors.oldPassword}
@@ -73,7 +73,7 @@ export default function AccountChangePassword() {
               {...getFieldProps('newPassword')}
               fullWidth
               autoComplete="on"
-              type="password"
+              // type="password"
               label="New Password"
               error={Boolean(touched.newPassword && errors.newPassword)}
               helperText={(touched.newPassword && errors.newPassword) || 'Password must be minimum 6+'}
@@ -83,7 +83,7 @@ export default function AccountChangePassword() {
               {...getFieldProps('confirmNewPassword')}
               fullWidth
               autoComplete="on"
-              type="password"
+              // type="password"
               label="Confirm New Password"
               error={Boolean(touched.confirmNewPassword && errors.confirmNewPassword)}
               helperText={touched.confirmNewPassword && errors.confirmNewPassword}

@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { paramCase } from 'change-case';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 // material
 import { Container } from '@material-ui/core';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
 import { getUserList, getSpecialPermssionList } from '../../redux/slices/user';
+import { getSettingsList } from '../../redux/slices/settings';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -21,7 +22,6 @@ import UserSpecialPermissionsForm from '../../components/_dashboard/user/UserSpe
 export default function UserDetails() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
-  const { pathname } = useLocation();
   const { userId } = useParams();
   const { userList, specialPermissionList } = useSelector((state) => state.user);
   const currentUser = userList.find((user) => paramCase(user._id) === userId);
@@ -30,9 +30,13 @@ export default function UserDetails() {
   );
   const readOnly = true;
 
+  const { settingsList } = useSelector((state) => state.setting);
+  const parameterSettings = settingsList.find((settingRow) => settingRow.type === 'parameter');
+
   useEffect(() => {
     dispatch(getUserList());
     dispatch(getSpecialPermssionList());
+    dispatch(getSettingsList());
   }, [dispatch]);
 
   return (
@@ -47,7 +51,11 @@ export default function UserDetails() {
           ]}
         />
 
-        <UserDetailsForm currentUser={currentUser} />
+        <UserDetailsForm
+          currentUser={currentUser}
+          userSpecialPermissions={userSpecialPermissions}
+          parameterSettings={parameterSettings}
+        />
         {userSpecialPermissions && (
           <UserSpecialPermissionsForm
             readOnly={readOnly}

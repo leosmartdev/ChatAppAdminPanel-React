@@ -4,7 +4,6 @@ import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
 import plusFill from '@iconify/icons-eva/plus-fill';
 import { Link as RouterLink } from 'react-router-dom';
-import axios from 'axios';
 // material
 import { useTheme } from '@material-ui/core/styles';
 import {
@@ -41,6 +40,7 @@ import {
   BlockLimitedWordListToolbar,
   BlockLimitedWordMoreMenu
 } from '../../components/_dashboard/blocklimitedwords/list';
+import axios from '../../utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -146,7 +146,7 @@ export default function BlockLimitedWordsList() {
 
   const handleDeleteWord = async (wordId) => {
     dispatch(deleteWord(wordId));
-    await axios.delete(`/block-limited-words/${wordId}`);
+    await axios.post(`/block-limited-words/delete/${wordId}`);
   };
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - wordList.length) : 0;

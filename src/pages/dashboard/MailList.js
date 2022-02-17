@@ -1,10 +1,14 @@
 import { filter } from 'lodash';
 import { Icon } from '@iconify/react';
-import { sentenceCase } from 'change-case';
+// import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
-import plusFill from '@iconify/icons-eva/plus-fill';
-import { Link as RouterLink } from 'react-router-dom';
-import axios from 'axios';
+// import closeSquareFill from '@iconify/icons-eva/close-square-fill';
+import closeSquareOutline from '@iconify/icons-eva/close-square-outline';
+// import plusFill from '@iconify/icons-eva/plus-fill';
+import downloadOutline from '@iconify/icons-eva/download-outline';
+// import FileDownloadIcon from '@mui/icons-material/FileDownload';
+// import { Link as RouterLink } from 'react-router-dom';
+// import axios from 'axios';
 import { useSnackbar } from 'notistack5';
 // material
 import { useTheme } from '@material-ui/core/styles';
@@ -44,7 +48,14 @@ import MailSendMessageDialog from '../../components/_dashboard/mail/MailSendMess
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [{ id: 'email', label: 'Mail', alignRight: false }, { id: '' }];
+const TABLE_HEAD = [
+  { id: 'email', label: 'Mail', alignRight: false },
+  { id: 'address', label: 'Location', alignRight: false },
+  { id: 'coverage', label: 'Coverage', alignRight: false },
+  { id: 'balance', label: 'Balance', alignRight: false },
+  { id: 'credit', label: 'Credit %', alignRight: false },
+  { id: '' }
+];
 
 // ----------------------------------------------------------------------
 
@@ -74,6 +85,12 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     array = stabilizedThis.map((el) => el[0]);
     return filter(array, (_user) => {
+      if (_user.role === 'admin') {
+        return false;
+      }
+      if (query.deletedUsers && query.deletedUsers.indexOf(_user._id) > -1) {
+        return false;
+      }
       if (query.filterLocation && _user.address.toLowerCase().indexOf(query.filterLocation.toLowerCase()) === -1) {
         return false;
       }
@@ -109,11 +126,25 @@ export default function MailList() {
   const [rowsPerPage, setRowsPerPage] = useState(
     localStorage.getItem('maillist_rows_per_page') ? Number(localStorage.getItem('maillist_rows_per_page')) : 25
   );
+  const [deletedUsers, setDeletedUsers] = useState([]);
   const { settingsList } = useSelector((state) => state.setting);
   const [openMessageDialog, setOpenMessageDialog] = useState(false);
   const [message, setMessage] = useState('');
   const [handleMailAddress, setHandleMailAddress] = useState('');
   const { enqueueSnackbar } = useSnackbar();
+
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
+
+  console.log('rendering');
+  const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), {
+    deletedUsers,
+    filterLocation,
+    filterCoverage,
+    filterBalance,
+    filterCredit
+  });
+
+  const isUserNotFound = filteredUsers.length === 0;
 
   useEffect(() => {
     dispatch(getUserList());
@@ -208,16 +239,31 @@ export default function MailList() {
     setFilterCredit(event.target.value);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
+  const handleDownloadEmails = () => {
+    console.log('handle download emails');
+    const element = document.createElement('a');
+    const emailList = filteredUsers.map((user) => `${user.email}\r\n`);
+    // console.log(emailList);
+    const file = new Blob(emailList, { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = `email_list_${Date.now()}.txt`;
+    document.body.appendChild(element); // Required for this to work in FireFox
+    // element.addEventListener('click', (e) => {
+    //   setTimeout(() => URL.revokeObjectURL(element.href), 30 * 1000);
+    // });
+    element.click();
+  };
 
-  const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), {
-    filterLocation,
-    filterCoverage,
-    filterBalance,
-    filterCredit
-  });
-
-  const isUserNotFound = filteredUsers.length === 0;
+  const handleDeleteRow = (userId, email) => {
+    // console.log(userId);
+    const deletedIds = deletedUsers;
+    if (deletedIds.indexOf(userId) === -1) {
+      // console.log(deletedIds, userId);
+      deletedIds.push(userId);
+    }
+    setDeletedUsers(deletedIds);
+    setHandleMailAddress(email);
+  };
 
   return (
     <Page title="Mail: List | Locals">
@@ -225,6 +271,17 @@ export default function MailList() {
         <HeaderBreadcrumbs
           heading="Mail List"
           links={[{ name: 'Dashboard', href: PATH_DASHBOARD.root }, { name: 'MailList' }]}
+          action={
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleDownloadEmails();
+              }}
+              startIcon={<Icon icon={downloadOutline} />}
+            >
+              Export Email List
+            </Button>
+          }
         />
 
         <Card>
@@ -266,6 +323,7 @@ export default function MailList() {
                       isVerified,
                       coverage,
                       country,
+                      address,
                       online
                     } = row;
                     const isItemSelected = selected.indexOf(email) !== -1;
@@ -275,12 +333,24 @@ export default function MailList() {
                         hover
                         key={_id}
                         tabIndex={-1}
-                        role="checkbox"
+                        // role="checkbox"
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
                       >
-                        <TableCell padding="checkbox">
+                        {/* <TableCell padding="checkbox">
                           <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, email)} />
+                        </TableCell> */}
+                        <TableCell component="td" scope="row" padding="none">
+                          <Button
+                            variant="text"
+                            onClick={() => {
+                              handleDeleteRow(_id, email);
+                            }}
+                            sx={{ color: 'text.secondary' }}
+                            style={{ minWidth: 'unset', padding: '5px' }}
+                          >
+                            <Icon icon={closeSquareOutline} width={18} height={18} />
+                          </Button>
                         </TableCell>
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
@@ -288,6 +358,18 @@ export default function MailList() {
                               {email}
                             </Typography>
                           </Stack>
+                        </TableCell>
+                        <TableCell component="td" scope="row" padding="none">
+                          {address}
+                        </TableCell>
+                        <TableCell component="td" scope="row" padding="none" align="left">
+                          {Math.floor(coverage)}
+                        </TableCell>
+                        <TableCell component="td" scope="row" padding="none" align="left">
+                          {balance}
+                        </TableCell>
+                        <TableCell component="td" scope="row" padding="none" align="left">
+                          {credit}
                         </TableCell>
                         <TableCell align="right">
                           <Button

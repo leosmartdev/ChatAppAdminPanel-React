@@ -23,7 +23,8 @@ const RootStyle = styled('span')(({ theme, styleProps }) => {
       : { height: theme.spacing(1.25), width: theme.spacing(1.25) }),
 
     ...(status === 'offline' && {
-      backgroundColor: 'transparent'
+      // backgroundColor: 'transparent'
+      backgroundColor: theme.palette.warning.main
     }),
 
     ...(status === 'away' && {

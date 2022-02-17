@@ -21,10 +21,10 @@ export default function ProhibitedWordCreate() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
   const { pathname } = useLocation();
-  const { word } = useParams();
+  const { id } = useParams();
   const { wordList } = useSelector((state) => state.prohibatedword);
   const isEdit = pathname.includes('edit');
-  const currentWord = wordList.find((prohibitedwords) => paramCase(prohibitedwords.word) === word);
+  const currentWord = wordList.find((prohibitedwords) => paramCase(prohibitedwords._id) === id);
 
   useEffect(() => {
     dispatch(getWordList());

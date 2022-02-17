@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 // material
 import { Box, Divider } from '@material-ui/core';
@@ -12,14 +12,17 @@ import {
   markConversationAsRead,
   resetActiveConversation
 } from '../../../redux/slices/privatechat';
+import { getSettingsList } from '../../../redux/slices/settings';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 //
-import ChatRoom from './ChatRoom';
+// import ChatRoom from './ChatRoom';
 import ChatMessageList from './ChatMessageList';
 import ChatHeaderDetail from './ChatHeaderDetail';
 import ChatMessageInput from './ChatMessageInput';
 import ChatHeaderCompose from './ChatHeaderCompose';
+// hooks
+import useAuth from '../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +35,7 @@ const conversationSelector = (state) => {
   return {
     id: null,
     messages: [],
+    lastMessage: null,
     users: []
   };
 };
@@ -39,11 +43,18 @@ const conversationSelector = (state) => {
 export default function ChatWindow({ socket }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { pathname } = useLocation();
   const { opponentId } = useParams();
   const { contacts, recipients, participants, activeConversationId } = useSelector((state) => state.privatechat);
   const conversation = useSelector((state) => conversationSelector(state));
-  const [currentConversationId, setCurrentCoversationId] = useState(null);
+
+  const { settingsList } = useSelector((state) => state.setting);
+  const parameterSettings = settingsList.find((settingRow) => settingRow.type === 'parameter');
+
+  useEffect(() => {
+    dispatch(getSettingsList());
+  }, [dispatch]);
 
   const mode = opponentId ? 'DETAIL' : 'COMPOSE';
 
@@ -58,34 +69,11 @@ export default function ChatWindow({ socket }) {
   }, [dispatch, activeConversationId]);
 
   useEffect(() => {
-    socket.on('connect', () => {
-      console.log('Successfully connected');
-      if (activeConversationId) {
-        if (currentConversationId) {
-          console.log('leaveChat', currentConversationId);
-          socket.emit(
-            'leaveChat',
-            JSON.stringify({
-              chatId: currentConversationId
-            })
-          );
-        }
-        console.log('joinChat', activeConversationId);
-        const params = { chatId: activeConversationId };
-        socket.emit('joinChat', JSON.stringify(params));
-        setCurrentCoversationId(activeConversationId);
-      }
-    });
-    socket.on('connect_failed', () => {
-      console.log('Connection Failed');
-    });
-    socket.on('disconnect', () => {
-      console.log('Disconnected');
-    });
-    socket.on('msgReceive', handleReceiveMessage);
-    socket.on('onDeleted', handleDeleteMessage);
-    socket.on('onTyping', onTyping);
-  }, [socket, activeConversationId]);
+    // console.log(conversation);
+    if (conversation.lastMessage && conversation.lastMessage.users_see_message.indexOf(user._id) === -1) {
+      socket.emit('makeLastMessageAsSeen', JSON.stringify({ chatId: activeConversationId, userId: user._id }));
+    }
+  }, [dispatch, conversation]);
 
   const handleAddRecipient = (recipient) => {
     dispatch(addRecipients(recipient));
@@ -111,23 +99,9 @@ export default function ChatWindow({ socket }) {
     }
   };
 
-  const handleReceiveMessage = async (value) => {
-    console.log(activeConversationId, value);
-    dispatch(getConversation(activeConversationId));
-  };
-
-  const handleDeleteMessage = async (value) => {
-    console.log(value);
-    dispatch(getConversation(activeConversationId));
-  };
-
-  const onTyping = async (value) => {
-    console.log(value);
-  };
-
   return (
     <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-      {mode === 'DETAIL' ? (
+      {/* {mode === 'DETAIL' ? (
         <ChatHeaderDetail participants={displayParticipants} />
       ) : (
         <ChatHeaderCompose
@@ -135,7 +109,8 @@ export default function ChatWindow({ socket }) {
           contacts={Object.values(contacts.byId)}
           onAddRecipient={handleAddRecipient}
         />
-      )}
+      )} */}
+      <ChatHeaderDetail participants={displayParticipants} />
 
       <Divider />
 
@@ -150,6 +125,7 @@ export default function ChatWindow({ socket }) {
             opponentId={opponentId}
             onSend={handleSendMessage}
             disabled={pathname === PATH_DASHBOARD.chat.private}
+            messageMaxLen={parameterSettings && Number(parameterSettings.settings.message_limit_character_num)}
           />
         </Box>
 

@@ -15,7 +15,7 @@ const RootStyle = styled('div')(({ theme }) => ({
 }));
 
 const ContentStyle = styled('div')(({ theme }) => ({
-  maxWidth: 320,
+  maxWidth: 450,
   padding: theme.spacing(1.5),
   marginTop: theme.spacing(0.5),
   borderRadius: theme.shape.borderRadius,
@@ -56,6 +56,11 @@ export default function ChatMessageItem({ message, conversation, onOpenLightbox,
   const isMe = senderDetails.type === 'me';
   const firstName = senderDetails.name && senderDetails.name.split(' ')[0];
 
+  const replaceURLWithHTMLLinks = (text) => {
+    const exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/gim;
+    return text.replace(exp, (url) => `<a target="_blank" href="${url}">${url}</a>`);
+  };
+
   return (
     <RootStyle {...other}>
       <Box
@@ -86,7 +91,7 @@ export default function ChatMessageItem({ message, conversation, onOpenLightbox,
               })
             }}
           >
-            <Typography variant="body2">{message.message}</Typography>
+            <Stack spacing={2} dangerouslySetInnerHTML={{ __html: replaceURLWithHTMLLinks(message.message) }} />
             {message.imgs.length > 0 && (
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
                 {message.imgs.map((img) => (

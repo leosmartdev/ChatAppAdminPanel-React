@@ -115,12 +115,19 @@ export default function Router() {
           ]
         },
         {
+          path: 'announcement',
+          children: [
+            { path: '/', element: <Navigate to="/dashboard/announcement" replace /> },
+            { path: '/post', element: <AnnouncementPost /> }
+          ]
+        },
+        {
           path: 'prohibitedwords',
           children: [
             { path: '/', element: <Navigate to="/dashboard/prohibitedwords/list" replace /> },
             { path: '/list', element: <ProhibitedWordsList /> },
             { path: '/new', element: <ProhibitedWordCreate /> },
-            { path: '/:word/edit', element: <ProhibitedWordCreate /> }
+            { path: '/:id/edit', element: <ProhibitedWordCreate /> }
           ]
         },
         {
@@ -195,6 +202,7 @@ const UserCreate = Loadable(lazy(() => import('../pages/dashboard/UserCreate')))
 const UserDetails = Loadable(lazy(() => import('../pages/dashboard/UserDetails')));
 const Chat = Loadable(lazy(() => import('../pages/dashboard/Chat')));
 const PrivateChat = Loadable(lazy(() => import('../pages/dashboard/PrivateChat')));
+const AnnouncementPost = Loadable(lazy(() => import('../pages/dashboard/AnnouncementPost')));
 const Mail = Loadable(lazy(() => import('../pages/dashboard/Mail')));
 const MailList = Loadable(lazy(() => import('../pages/dashboard/MailList')));
 

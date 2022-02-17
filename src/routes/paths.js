@@ -50,6 +50,10 @@ export const PATH_DASHBOARD = {
     private: path(ROOTS_DASHBOARD, '/chat/private'),
     privateConversation: path(ROOTS_DASHBOARD, '/chat/private/:opponentId')
   },
+  announcement: {
+    root: path(ROOTS_DASHBOARD, '/announcement'),
+    post: path(ROOTS_DASHBOARD, '/announcement/post')
+  },
   user: {
     root: path(ROOTS_DASHBOARD, '/user'),
     profile: path(ROOTS_DASHBOARD, '/user/profile'),

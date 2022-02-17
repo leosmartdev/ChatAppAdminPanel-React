@@ -26,7 +26,8 @@ const ICONS = {
   booking: getIcon('ic_booking'),
   legalagreement: getIcon('ic_legal-agreement'),
   blocklimitedword: getIcon('ic_blocklimitedword'),
-  settings: getIcon('ic_settings')
+  settings: getIcon('ic_settings'),
+  announcement: getIcon('ic_announcement')
 };
 
 const sidebarConfig = [
@@ -69,6 +70,31 @@ const sidebarConfig = [
           { title: 'create', path: PATH_DASHBOARD.user.newUser }
         ]
       },
+      {
+        title: 'Settings',
+        path: PATH_DASHBOARD.settings.root,
+        icon: ICONS.settings,
+        children: [{ title: 'Parameters', path: PATH_DASHBOARD.settings.parameters }]
+      }
+    ]
+  },
+  // CHAT
+  // ----------------------------------------------------------------------
+  {
+    subheader: 'chat',
+    items: [
+      {
+        title: 'chat',
+        path: PATH_DASHBOARD.chat.root,
+        icon: ICONS.chat,
+        children: [{ title: 'Private', path: PATH_DASHBOARD.chat.private }]
+      },
+      {
+        title: 'announcement',
+        path: PATH_DASHBOARD.announcement.root,
+        icon: ICONS.announcement,
+        children: [{ title: 'Post', path: PATH_DASHBOARD.announcement.post }]
+      },
       // MANAGEMENT : Word Restrication
       {
         title: 'Prohibited Words',
@@ -78,25 +104,18 @@ const sidebarConfig = [
           { title: 'List', path: PATH_DASHBOARD.prohibitedwords.list },
           { title: 'Create new', path: PATH_DASHBOARD.prohibitedwords.new }
         ]
-      },
-      {
-        title: 'Block Limited Words',
-        path: PATH_DASHBOARD.blocklimitedwords.root,
-        icon: ICONS.blocklimitedword,
-        children: [
-          { title: 'List', path: PATH_DASHBOARD.blocklimitedwords.list },
-          { title: 'Create new', path: PATH_DASHBOARD.blocklimitedwords.new }
-        ]
-      },
-      {
-        title: 'Settings',
-        path: PATH_DASHBOARD.settings.root,
-        icon: ICONS.settings,
-        children: [{ title: 'Parameters', path: PATH_DASHBOARD.settings.parameters }]
       }
+      // {
+      //   title: 'Block Limited Words',
+      //   path: PATH_DASHBOARD.blocklimitedwords.root,
+      //   icon: ICONS.blocklimitedword,
+      //   children: [
+      //     { title: 'List', path: PATH_DASHBOARD.blocklimitedwords.list },
+      //     { title: 'Create new', path: PATH_DASHBOARD.blocklimitedwords.new }
+      //   ]
+      // }
     ]
   },
-
   // APP
   // ----------------------------------------------------------------------
   {
@@ -108,12 +127,6 @@ const sidebarConfig = [
         icon: ICONS.mail,
         // info: <Label color="error">2</Label>
         children: [{ title: 'List', path: PATH_DASHBOARD.mail.list }]
-      },
-      {
-        title: 'chat',
-        path: PATH_DASHBOARD.chat.root,
-        icon: ICONS.chat,
-        children: [{ title: 'Private', path: PATH_DASHBOARD.chat.private }]
       }
     ]
   }
