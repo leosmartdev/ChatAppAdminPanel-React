@@ -159,6 +159,6 @@
     "prettier": "^2.3.2"
   },
   "engines": {
-    "node": ">= 12.x"
+    "node": ">= 15.x"
   }
 }
