@@ -1,4 +1,4 @@
-# Locals Admin Panel
+# Locals Chat App Admin Panel
 
 React Admin Panel and API development with Node.js for Mobile App.
 
